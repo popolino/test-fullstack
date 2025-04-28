@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import './App.css';
 
-const BASE_URL = import.meta.env.VITE_API_URL || '/api';
+const BASE_URL = process.env.REACT_APP_API_URL || '/api';
 
 function App() {
     const [items, setItems] = useState([]);
