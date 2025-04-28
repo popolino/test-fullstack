@@ -4,6 +4,7 @@
   "type": "module",
   "private": true,
   "scripts": {
+    "build": "npm install && cd client && npm install && npm run build",
     "start": "node index.js"
   },
   "dependencies": {
