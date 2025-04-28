@@ -4,6 +4,6 @@
   "private": true,
   "scripts": {
     "build": "cd client && npm install && npm run build",
-    "start": "cd server && npm install && node index.js"
+    "start": "node index.js"
   }
 }
