@@ -2,7 +2,6 @@ import { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import './App.css';
 
-const BASE_URL = 'http://localhost:3001';
 
 function App() {
     const [items, setItems] = useState([]);
@@ -31,7 +30,7 @@ function App() {
         isFetching.current = true;
 
         try {
-            const res = await axios.get(`${BASE_URL}/items`, {
+            const res = await axios.get(`/api/items`, {
                 params: {
                     page,
                     limit: 20,
@@ -58,7 +57,7 @@ function App() {
         setSelected(updated);
 
         try {
-            await axios.post(`${BASE_URL}/select`, { selected: updated });
+            await axios.post(`/api/select`, { selected: updated });
         } catch (err) {
             console.error(err);
         }
@@ -90,7 +89,7 @@ function App() {
         setItems(updated);
 
         try {
-            await axios.post(`${BASE_URL}/sort`, { sorted: updated });
+            await axios.post(`/api/sort`, { sorted: updated });
         } catch (err) {
             console.error(err);
         }
