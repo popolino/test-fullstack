@@ -88,13 +88,16 @@ function App() {
         updated.splice(dropIndex, 0, movedItem);
 
         setItems(updated);
-
         try {
-            await axios.post(`${BASE_URL}/sort`, { sorted: updated });
+            await axios.post(`${BASE_URL}/sort`, {
+                dragged: items[dragIndex],
+                droppedOn: dropItem
+            });
         } catch (err) {
             console.error(err);
         }
     };
+
 
     return (
         <div className="container">

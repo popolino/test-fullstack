@@ -9,67 +9,80 @@ import {
 export function getItems(req, res) {
     try {
         let { search = '', page = 1, limit = 20 } = req.query;
-        page = parseInt(page);
-        limit = parseInt(limit);
+        page  = parseInt(page,  10);
+        limit = parseInt(limit, 10);
 
-        if (isNaN(page) || isNaN(limit) || page < 1) {
+        if (isNaN(page) || isNaN(limit) || page < 1 || limit < 1) {
             return res.status(400).json({ error: 'page и limit должны быть положительными числами' });
         }
-
-        let list = Array.isArray(currentList) && currentList.length > 0 ? currentList : originalList;
-
-        if (search.trim()) {
-            const query = search.trim();
-            list = list
-                .filter((num) => num.toString().includes(query))
-                .sort((a, b) => a - b);
-        } else {
-            list = [...list].sort((a, b) => a - b);
-        }
-
-
-        const total = list.length;
-        const totalPages = Math.ceil(total / limit);
-        const offset = (page - 1) * limit;
-        const result = list.slice(offset, offset + limit);
+        const base =
+            Array.isArray(currentList) && currentList.length > 0
+                ? currentList
+                : [...originalList].sort((a, b) => a - b);
+        const list = search.trim()
+            ? base
+                .filter((n) => n.toString().includes(search.trim()))
+                .sort((a, b) => a - b)
+            : base;
+        const total       = list.length;
+        const totalPages  = Math.ceil(total / limit);
+        const offset      = (page - 1) * limit;
+        const resultSlice = list.slice(offset, offset + limit);
 
         res.json({
-            items: result,
+            items: resultSlice,
             total,
             currentPage: page,
             totalPages,
             selected: [...selectedItems],
         });
-    } catch (error) {
+    } catch (err) {
+        console.error(err);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 }
+
 
 export function postSelect(req, res) {
     try {
         const { selected } = req.body;
         if (!Array.isArray(selected) || !selected.every(Number.isInteger)) {
-            return res.status(400).json({ error: 'selected должен быть массивом чисел' });
+            return res
+                .status(400)
+                .json({ error: 'selected должен быть массивом чисел' });
         }
         setSelectedItems(selected);
         res.sendStatus(200);
-    } catch (error) {
+    } catch (err) {
+        console.error(err);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 }
 
 export function postSort(req, res) {
     try {
-        const { sorted } = req.body;
-        if (!Array.isArray(sorted) || !sorted.every(Number.isInteger)) {
-            return res.status(400).json({ error: 'sorted должен быть массивом чисел' });
+        const { dragged, droppedOn } = req.body;
+        if (![dragged, droppedOn].every(Number.isInteger)) {
+            return res.status(400).json({ error: '`dragged` и `droppedOn` должны быть числами' });
         }
-        const sortedSet = new Set(sorted);
-        const rest = originalList.filter(item => !sortedSet.has(item));
-        const newList = [...sorted, ...rest];
-        setCurrentList(newList);
+        const baseList =
+            Array.isArray(currentList) && currentList.length > 0
+                ? [...currentList]
+                : [...originalList];
+
+        const fromIndex = baseList.indexOf(dragged);
+        const toIndex   = baseList.indexOf(droppedOn);
+
+        if (fromIndex === -1 || toIndex === -1) {
+            return res.status(404).json({ error: 'элемент не найден в списке' });
+        }
+        baseList.splice(fromIndex, 1);
+        baseList.splice(toIndex, 0, dragged);
+        setCurrentList(baseList);
         res.sendStatus(200);
     } catch (error) {
+        console.error(error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 }
+
