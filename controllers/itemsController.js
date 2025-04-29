@@ -20,8 +20,13 @@ export function getItems(req, res) {
 
         if (search.trim()) {
             const query = search.trim();
-            list = list.filter((num) => num.toString().includes(query));
+            list = list
+                .filter((num) => num.toString().includes(query))
+                .sort((a, b) => a - b);
+        } else {
+            list = [...list].sort((a, b) => a - b);
         }
+
 
         const total = list.length;
         const totalPages = Math.ceil(total / limit);
